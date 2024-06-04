@@ -110,6 +110,7 @@ def get_displacement(events, handle, label, hist, hist2, hist3, hist4, hist5):
             r = vertex.r()
             x = vertex.x()
             y = vertex.y()
+            z = vertex.z()
             # if str(np.abs(genPart.pdgId()))[0]=='5':
             #     x = vertex.x()
             #     y = vertex.y()
@@ -155,9 +156,20 @@ def get_displacement(events, handle, label, hist, hist2, hist3, hist4, hist5):
                     continue
 
                 daughter = genPart.daughter(0)
-                displacement = np.abs(daughter.vertex().r()-r)   # in cm
+                # displacement = np.abs(daughter.vertex().r()-r)   # in cm
+                displacement = np.sqrt((daughter.vertex().x()-x)**2 + (daughter.vertex().y()-y)**2 + (daughter.vertex().z()-z)**2)   # in cm
                 displacement_T = np.sqrt((daughter.vertex().x()-x)**2 + (daughter.vertex().y()-y)**2)   # in cm 
-                # print("displacement = ", displacement)
+                print("displacement = ", displacement)
+                print("displacementT = ", displacement_T)
+                print("r = ", r)
+                print("xy = ", np.sqrt(x**2 +y**2))
+                print("daughter.r = ", daughter.vertex().r())
+                print("daughter.xy =", np.sqrt(daughter.vertex().x()**2 + daughter.vertex().y()**2) )
+                print("z = ", z)
+                print("daughter.z = ", daughter.vertex().z())
+                print("daughter.x", daughter.vertex().x())
+                print("daughter.y", daughter.vertex().y())
+
                 jet_energy_response = jet.pt() / jet.genJet().pt()
 
                 hist.Fill(displacement) #, event_weight)

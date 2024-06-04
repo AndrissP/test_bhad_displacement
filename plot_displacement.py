@@ -308,12 +308,14 @@ print("NfilesPy = ", NfilesPy, " NfilesHer = ", NfilesHer)
 file = ROOT.TFile("res/Her/{}/histograms1_{}.root".format(HT_bin, HT_bin))
 hists_Her = file.Get("lambda_tmp_{}_Her".format(HT_bin))
 # import pdb; pdb.set_trace()
-hists_Her.Scale(0.96/NfilesHer)
+# hists_Her.Scale(0.96/NfilesHer)
+hists_Her.Scale(1./hists_Her.Integral())
 
 
 file2 = ROOT.TFile("res/Py/{}/histograms1_{}.root".format(HT_bin, HT_bin))
 hists_Py = file2.Get("lambda_tmp_{}_Py".format(HT_bin))
-hists_Py.Scale(1./NfilesPy)
+# hists_Py.Scale(1./NfilesPy)
+hists_Py.Scale(1./hists_Py.Integral())
 
 file3 = ROOT.TFile("res/Py/{}/histograms3_{}.root".format(HT_bin, HT_bin))
 hists3_Py = file3.Get("x_vs_R_{}_Py".format(HT_bin))
