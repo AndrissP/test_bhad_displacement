@@ -1,3 +1,4 @@
+# cmsstyle requires centos7 with lch centos7, not cmssw
 import ROOT
 # import sys
 # from os import path
@@ -11,7 +12,7 @@ CMS.SetExtraText("Simulation Private Work")
 
 def Plot(square, iPos, hist1, hist2, outputPath="./pdfs"):
     # canv_name = f'example_{"square" if square else "rectangle"}_pos{iPos}'
-    canv_name = 'lifetime'
+    canv_name = 'x_T'
     # Write extra lines below the extra text (usuful to define regions/channels)
     # CMS.ResetAdditionalInfo()
     # CMS.AppendAdditionalInfo("Signal region")
@@ -55,8 +56,8 @@ def Plot(square, iPos, hist1, hist2, outputPath="./pdfs"):
         x_max,
         y_min,
         y_max,
-        "displacement [cm]",
-        "dN/dx",
+        "transverse displacement, x_{T} [cm]",
+        "dN/dx_{T}",
         square=square,
         extraSpace=0.01,
         iPos=iPos,
@@ -92,7 +93,7 @@ def Plot(square, iPos, hist1, hist2, outputPath="./pdfs"):
         y_max,
         0.75,
         1.25,
-        "displacement [cm]",
+        "transverse displacement, x_{T} [cm]",
         "dN/dx",
         "#frac{MG+Py8}{MG+Her7}",
         square=square,
@@ -168,7 +169,7 @@ def Plot(square, iPos, hist1, hist2, outputPath="./pdfs"):
 
 def Plot2D(square, iPos, hist, samp, outputPath="./pdfs"):
     # canv_name = f'example_2D_{"square" if square else "rectangle"}_pos{iPos}'
-    canv_name = 'lifetime_response_2D'+'_'+samp
+    canv_name = 'x_T_response_2D'+'_'+samp
     # Allow to reduce the size of the lumi info 
     hist.QuantilesY()
     scaleLumi = 0.80 if square else None
@@ -178,7 +179,7 @@ def Plot2D(square, iPos, hist, samp, outputPath="./pdfs"):
         20,
         0,
         2,
-        "gen particle displacement [cm]",
+        "transverse displacement, x_{T} [cm]",
         "response, R, of the matched jet", # = #frac{#p_{T, ptcl}}{#p_{T,gen}}",
         square=square,
         extraSpace=0.02,
@@ -212,7 +213,7 @@ def Plot2D(square, iPos, hist, samp, outputPath="./pdfs"):
 
 def Plot_median_respponse(square, iPos, hist1, hist2, median1, median2, outputPath="./pdfs"):
     # canv_name = f'example_{"square" if square else "rectangle"}_pos{iPos}'
-    canv_name = 'response_vs_displacement'
+    canv_name = 'response_vs_xT'
 
     nbins = hist1.GetNbinsX()
     for ii in range(0, nbins + 2):
@@ -226,8 +227,8 @@ def Plot_median_respponse(square, iPos, hist1, hist2, median1, median2, outputPa
 
 
     # Get the minimum and maximum y values
-    y_min = min(hist1.GetMinimum(), hist2.GetMinimum())*0.98
-    y_max = max(hist1.GetMaximum(), hist2.GetMaximum())*1.05
+    y_min = min(hist1.GetMinimum(), hist2.GetMinimum())*0.983
+    y_max = max(hist1.GetMaximum(), hist2.GetMaximum())*1.036
 
     # Get the minimum and maximum x values
     x_min = min(hist1.GetXaxis().GetXmin(), hist2.GetXaxis().GetXmin())
@@ -242,7 +243,7 @@ def Plot_median_respponse(square, iPos, hist1, hist2, median1, median2, outputPa
         y_max,
         0.9,
         1.1,
-        "displacement [cm]",
+        "transverse displacement, x_{T} [cm]",
         "median response",
         "#frac{MG+Py8}{MG+Her7}",
         square=square,
@@ -303,32 +304,56 @@ def Plot_median_respponse(square, iPos, hist1, hist2, median1, median2, outputPa
     dicanv.SaveAs(outputPath+'/'+canv_name + ".png")
     CMS.SaveCanvas(dicanv, os.path.join(outputPath, canv_name + ".pdf"))
 
-# file = ROOT.TFile("res/histograms1HT2000toInf.root")
+# # file = ROOT.TFile("res/histograms1HT2000toInf.root")
+# HT_bin = '2000toInf'
+# import glob
+# filesPy = glob.glob("res/Py/{}/histograms1_{}_*.root".format(HT_bin, HT_bin))
+# NfilesPy = len(filesPy)
+# filesHer = glob.glob("res/Her/{}/histograms1_{}_*.root".format(HT_bin, HT_bin))
+# NfilesHer = len(filesHer)
+# print("NfilesPy = ", NfilesPy, " NfilesHer = ", NfilesHer)
+
+# file = ROOT.TFile("res/Her/{}/histograms1_{}.root".format(HT_bin, HT_bin))
+# hists_Her = file.Get("lambda_tmp_{}_Her".format(HT_bin))
+# # import pdb; pdb.set_trace()
+# hists_Her.Scale(0.96/NfilesHer)
+
+
+# file2 = ROOT.TFile("res/Py/{}/histograms1_{}.root".format(HT_bin, HT_bin))
+# hists_Py = file2.Get("lambda_tmp_{}_Py".format(HT_bin))
+# hists_Py.Scale(1./NfilesPy)
+
+# file3 = ROOT.TFile("res/Py/{}/histograms3_{}.root".format(HT_bin, HT_bin))
+# hists3_Py = file3.Get("x_vs_R_{}_Py".format(HT_bin))
+# # hists3_Py.Scale(1./NfilesPy)
+# file4 = ROOT.TFile("res/Her/{}/histograms3_{}.root".format(HT_bin, HT_bin))
+# hists3_Her = file4.Get("x_vs_R_{}_Her".format(HT_bin))
+
 HT_bin = '2000toInf'
 import glob
-filesPy = glob.glob("res/Py/{}/histograms1_{}_*.root".format(HT_bin, HT_bin))
+filesPy = glob.glob("res/Py/{}/histograms4_{}_*.root".format(HT_bin, HT_bin))
 NfilesPy = len(filesPy)
-filesHer = glob.glob("res/Her/{}/histograms1_{}_*.root".format(HT_bin, HT_bin))
+filesHer = glob.glob("res/Her/{}/histograms4_{}_*.root".format(HT_bin, HT_bin))
 NfilesHer = len(filesHer)
 print("NfilesPy = ", NfilesPy, " NfilesHer = ", NfilesHer)
 
-file = ROOT.TFile("res/Her/{}/histograms1_{}.root".format(HT_bin, HT_bin))
-hists_Her = file.Get("lambda_tmp_{}_Her".format(HT_bin))
+file = ROOT.TFile("res/Her/{}/histograms4_{}.root".format(HT_bin, HT_bin))
+hists_Her = file.Get("xT_tmp_{}_Her".format(HT_bin))
 # import pdb; pdb.set_trace()
-# hists_Her.Scale(0.96/NfilesHer)
 hists_Her.Scale(1./hists_Her.Integral())
+# hists_Her.Scale(0.96/NfilesHer)
 
 
-file2 = ROOT.TFile("res/Py/{}/histograms1_{}.root".format(HT_bin, HT_bin))
-hists_Py = file2.Get("lambda_tmp_{}_Py".format(HT_bin))
+file2 = ROOT.TFile("res/Py/{}/histograms4_{}.root".format(HT_bin, HT_bin))
+hists_Py = file2.Get("xT_tmp_{}_Py".format(HT_bin))
 # hists_Py.Scale(1./NfilesPy)
 hists_Py.Scale(1./hists_Py.Integral())
 
-file3 = ROOT.TFile("res/Py/{}/histograms3_{}.root".format(HT_bin, HT_bin))
-hists3_Py = file3.Get("x_vs_R_{}_Py".format(HT_bin))
+file3 = ROOT.TFile("res/Py/{}/histograms5_{}.root".format(HT_bin, HT_bin))
+hists3_Py = file3.Get("xT_vs_R_{}_Py".format(HT_bin))
 # hists3_Py.Scale(1./NfilesPy)
-file4 = ROOT.TFile("res/Her/{}/histograms3_{}.root".format(HT_bin, HT_bin))
-hists3_Her = file4.Get("x_vs_R_{}_Her".format(HT_bin))
+file4 = ROOT.TFile("res/Her/{}/histograms5_{}.root".format(HT_bin, HT_bin))
+hists3_Her = file4.Get("xT_vs_R_{}_Her".format(HT_bin))
 # hists3_Her.Scale(1./NfilesHer)
 # print("Read histos")
 
