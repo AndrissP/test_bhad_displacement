@@ -1,5 +1,14 @@
 # test_bhad_displacement
 
+### Setup/test
+```
+cmssw-el7
+scramv1 project -n CMSSW10629_b_had_displacement CMSSW CMSSW_10_6_29
+source /cvmfs/cms.cern.ch/cmsset_default.sh
+cd CMSSW10629_b_had_displacement/src
+cmsenv
+```
+
 Run as 
 ```
 python get_displacement.py -s Her
@@ -14,6 +23,11 @@ The output is saved under `Res`
 
 ### Run on condor
 The script can be run on condor.
+```
+exit
+```
+
+Exit from the singularity if still on it.
 ```
 cd condor
 ./submit.sh Her HT1000to1500
