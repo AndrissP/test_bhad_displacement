@@ -1,13 +1,15 @@
 #! /usr/bin/env python
 
+'''
+Run as `python get_displacement.py -s Her` or from condor folder as `./submit.sh Her HT1000to1500` or 
+'''
+
 import ROOT
 import sys
 from os import path
 from DataFormats.FWLite import Events, Handle
 from ROOT.Math import VectorUtil
 import numpy as np
-# import cmsstyle as CMS
-# import os
 
 def is_bhad(pdgId):
     pdgId_str = str(np.abs(pdgId))
@@ -21,16 +23,6 @@ def is_bhad(pdgId):
         return False
 
 
-# infile = 'QCD_HT1000to1500_example.root'
-# inputfile = 'QCD_HT1000to1500_Her_example.root'
-
-# if not path.exists(inputfile):
-    # print('No input file found!')
-
-# print("loading file: ", inputfile) 
-# events = Events(inputfile)
-# handle = Handle('float')
-# handle = Handle('vector<pat::Muon>')
 handle = Handle('vector<reco::GenParticle>')
 label = 'prunedGenParticles'
 handle_jets = Handle('vector<pat::Jet>')
@@ -59,10 +51,15 @@ def txt2filesls(dataset_name, Nfiles=5, xrootdstr='root://xrootd-cms.infn.it/'):
         fileslist = [prepend_str + file for file in rootfiles]
     return fileslist
 
-def get_displacement(events, handle, label, hist, hist2, hist3, hist4, hist5):
+def get_displacement(events, handle, label, hist, hist2, hist3, hist4, hist5, debug_script=False):
+    ''' Output: "histograms1_<HTbin>_<id>.root": b-hadron displacement histogram in narrow bins
+    "histograms2_<HTbin>_<id>.root": b-hadron displacement histogram in wide bins
+    "histograms3_<HTbin>_<id>.root": b-hadron displacement vs jet energy response
+    "histograms4_<HTbin>_<id>.root": b-hadron transverse displacement histogram in narrow bins
+    "histograms5_<HTbin>_<id>.root": b-hadron transverse displacement vs jet energy response
+    '''
     debug_jet_matching = False
 
-    # import pdb; pdb.set_trace()
     num_events = events.size()
     print("Number of events: ", num_events)
     ii = 0
@@ -71,8 +68,6 @@ def get_displacement(events, handle, label, hist, hist2, hist3, hist4, hist5):
         ii+=1
         if ii%1000==0:
             print("Event Nr = ", ii )
-        # if ii>500:
-        #     break
         event.getByLabel(label, handle)
         genParts = handle.product()
         
@@ -98,8 +93,6 @@ def get_displacement(events, handle, label, hist, hist2, hist3, hist4, hist5):
         if len(high_pt_jets)==0:
             print("No high pt jet found in the event ")
             continue
-        # print("len jets = ", len(jets))
-        # print("len jets = ", len(high_pt_jets))
 
         # goodbhads = []
         Nmatched_hads = 0
@@ -111,34 +104,31 @@ def get_displacement(events, handle, label, hist, hist2, hist3, hist4, hist5):
             x = vertex.x()
             y = vertex.y()
             z = vertex.z()
-            # if str(np.abs(genPart.pdgId()))[0]=='5':
-            #     x = vertex.x()
-            #     y = vertex.y()
-            #     z = vertex.z()
-            #     print("idx = ", idx, "pdgId = ", genPart.pdgId(), "status = ", genPart.status(), "x = ", np.round(x,6), "y = ", np.round(y,6), "z = ", np.round(z,6), "r = ", np.round(r,6), "isPromptDecayed", genPart.isPromptDecayed(), "isPromptFinalState", genPart.isPromptFinalState(), "isLastCopy = ", genPart.isLastCopy())
-            #     print("genPart phi = ", np.round(genPart.phi(),5), "genPart eta = ", np.round(genPart.eta(),5), "genPart pt = ", np.round(genPart.pt(),5), "genPart pdgId = ", genPart.pdgId())
-            #     for daughter in genPart.daughterRefVector():
-            #         print("daughter:     pdgId = ", daughter.pdgId(), "status = ", daughter.status(), "x = ", np.round(daughter.vertex().x(),6), "y = ", np.round(daughter.vertex().y(),6), "z = ", np.round(daughter.vertex().z(),6), "r = ", np.round(daughter.vertex().r(),6), "isPromptDecayed", daughter.isPromptDecayed(), "isPromptFinalState", daughter.isPromptFinalState(), "isLastCopy = ", daughter.isLastCopy())
-            #     for mother in genPart.motherRefVector():
-            #         print("mother:       pdgId = ", mother.pdgId(), "status = ", mother.status(), "x = ", np.round(mother.vertex().x(),6), "y = ", np.round(mother.vertex().y(),6), "z = ", np.round(mother.vertex().z(),6), "r = ", np.round(mother.vertex().r(),6), "isPromptDecayed", mother.isPromptDecayed(), "isPromptFinalState", mother.isPromptFinalState(), "isLastCopy = ", mother.isLastCopy())
-            #     print("  ")
+            if debug_script:
+                if str(np.abs(genPart.pdgId()))[0]=='5':
+                    print("idx = ", idx, "pdgId = ", genPart.pdgId(), "status = ", genPart.status(), "x = ", np.round(x,6), "y = ", np.round(y,6), "z = ", np.round(z,6), "r = ", np.round(r,6), "isPromptDecayed", genPart.isPromptDecayed(), "isPromptFinalState", genPart.isPromptFinalState(), "isLastCopy = ", genPart.isLastCopy())
+                    print("genPart phi = ", np.round(genPart.phi(),5), "genPart eta = ", np.round(genPart.eta(),5), "genPart pt = ", np.round(genPart.pt(),5), "genPart pdgId = ", genPart.pdgId())
+                    for daughter in genPart.daughterRefVector():
+                        print("daughter:     pdgId = ", daughter.pdgId(), "status = ", daughter.status(), "x = ", np.round(daughter.vertex().x(),6), "y = ", np.round(daughter.vertex().y(),6), "z = ", np.round(daughter.vertex().z(),6), "r = ", np.round(daughter.vertex().r(),6), "isPromptDecayed", daughter.isPromptDecayed(), "isPromptFinalState", daughter.isPromptFinalState(), "isLastCopy = ", daughter.isLastCopy())
+                    for mother in genPart.motherRefVector():
+                        print("mother:       pdgId = ", mother.pdgId(), "status = ", mother.status(), "x = ", np.round(mother.vertex().x(),6), "y = ", np.round(mother.vertex().y(),6), "z = ", np.round(mother.vertex().z(),6), "r = ", np.round(mother.vertex().r(),6), "isPromptDecayed", mother.isPromptDecayed(), "isPromptFinalState", mother.isPromptFinalState(), "isLastCopy = ", mother.isLastCopy())
+                    print("  ")
             if is_bhad(genPart.pdgId()) and genPart.isLastCopy():
                 # Take only the last b hadrons
                 has_bhad_daughter = any(is_bhad(daughter.pdgId()) for daughter in genPart.daughterRefVector())
                 if has_bhad_daughter:
                     continue
-                # goodbhads.append(genPart)
-                # print("jet phi = ", np.round(jet.phi(),5), "jet eta = ", jet.eta(), "jet pt = ", jet.pt())
 
                 # check if the b hadron comes from the high pt jet
                 matches_with_jet = False
-                # print("genPart phi = ", genPart.phi(), "genPart eta = ", genPart.eta(), "genPart pt = ", genPart.pt())
+                if debug_script:
+                    print("genPart phi = ", genPart.phi(), "genPart eta = ", genPart.eta(), "genPart pt = ", genPart.pt())
                 matched_jet = None
                 for jet in high_pt_jets:
-                    # import    pdb; pdb.set_trace()
                     dr = np.sqrt(VectorUtil.DeltaR2(jet.p4(), genPart.p4()))
-                    # print("jet phi = ", jet.phi(), "jet eta = ", jet.eta(), "jet pt = ", jet.pt())
-                    # print("dr = ", dr  )
+                    if debug_script:
+                        print("jet phi = ", jet.phi(), "jet eta = ", jet.eta(), "jet pt = ", jet.pt())
+                        print("dr = ", dr  )
                     if dr < 0.2:
                         matches_with_jet = True
                         if debug_jet_matching:
@@ -159,16 +149,16 @@ def get_displacement(events, handle, label, hist, hist2, hist3, hist4, hist5):
                 # displacement = np.abs(daughter.vertex().r()-r)   # in cm
                 displacement = np.sqrt((daughter.vertex().x()-x)**2 + (daughter.vertex().y()-y)**2 + (daughter.vertex().z()-z)**2)   # in cm
                 displacement_T = np.sqrt((daughter.vertex().x()-x)**2 + (daughter.vertex().y()-y)**2)   # in cm 
-                print("displacement = ", displacement)
-                print("displacementT = ", displacement_T)
-                print("r = ", r)
-                print("xy = ", np.sqrt(x**2 +y**2))
-                print("daughter.r = ", daughter.vertex().r())
-                print("daughter.xy =", np.sqrt(daughter.vertex().x()**2 + daughter.vertex().y()**2) )
+                # print("displacement = ", displacement)
+                # print("displacementT = ", displacement_T)
+                # print("r = ", r)
+                # print("xy = ", np.sqrt(x**2 +y**2))
+                # print("daughter.r = ", daughter.vertex().r())
+                # print("daughter.xy =", np.sqrt(daughter.vertex().x()**2 + daughter.vertex().y()**2) )
                 print("z = ", z)
-                print("daughter.z = ", daughter.vertex().z())
-                print("daughter.x", daughter.vertex().x())
-                print("daughter.y", daughter.vertex().y())
+                # print("daughter.z = ", daughter.vertex().z())
+                # print("daughter.x", daughter.vertex().x())
+                # print("daughter.y", daughter.vertex().y())
 
                 jet_energy_response = jet.pt() / jet.genJet().pt()
 
@@ -224,15 +214,14 @@ xsec_Py = {"HT1000to1500": 1118.0,
 xsec_Her = {"HT1000to1500": 1118.0*1.1,
             "HT1500to2000": 109.8*1.15,
             "HT2000toInf": 21.93*1.2}
-# hist_tot
-# for HT_bin in inputfiles_Her.keys():
+
 
 def run_displacement_file(inputfile, sample, HT_bin, out_dir='res', id='0'):
     hist = ROOT.TH1F('lambda_tmp'+'_'+HT_bin+'_'+sample, ';displacement cm;number of gen particles', len(bin_edges)-1, bin_edges_array.data())
     hist2 = ROOT.TH1F('lambda2_tmp'+'_'+HT_bin+'_'+sample, ';displacement cm;number of gen particles', 30, 0, 2.1)
     hist3 = ROOT.TH2F('x_vs_R'+'_'+HT_bin+'_'+sample, 'B-hadron Displacement vs Jet Energy Response', len(bin_edges)-1, bin_edges_array.data(), 30, 0, 2)
     hist4 = ROOT.TH1F('xT_tmp'+'_'+HT_bin+'_'+sample, ';tranverse displacement cm;number of gen particles', len(bin_edges)-1, bin_edges_array.data())
-    hist5 = ROOT.TH2F('xT_vs_R'+'_'+HT_bin+'_'+sample, 'B-hadron tranverse Displacement vs Jet Energy Response', len(bin_edges)-1, bin_edges_array.data(), 30, 0, 2)
+    hist5 = ROOT.TH2F('xT_vs_R'+'_'+HT_bin+'_'+sample, 'B-hadron tranverse displacement vs Jet Energy Response', len(bin_edges)-1, bin_edges_array.data(), 30, 0, 2)
 
     xrootdstr='root://xrootd-cms.infn.it/'
     inputfile = xrootdstr + inputfile
@@ -283,82 +272,7 @@ def run_displacement_file(inputfile, sample, HT_bin, out_dir='res', id='0'):
     hist5.Write()
     file.Close()
     print("Written to file: ", out_dir+"/histograms5"+'_'+HT_bin+'_'+id+".root")
-# def run_displacement(run_bins=None, out_dir='res'):
-#     if run_bins is None:
-#         run_bins = ["HT2000toInf"] 
-#     hists1 = []
-#     hists2 = []
-#     hists3 = []
 
-#     for sample in ['Py', 'Her']:
-#         hist_tot1 = ROOT.TH1F('lambda'+'_'+sample, ';displacement cm;number of gen particles', len(bin_edges)-1, bin_edges_array.data())
-#         hist_tot2 = ROOT.TH1F('lambda2'+'_'+sample, ';displacement cm;number of gen particles', 30, 0, 2.1)
-
-#         if sample == 'Py':
-#             inputfiles = inputfiles_Py
-#             xsec = xsec_Py
-#         elif sample == 'Her':
-#             inputfiles = inputfiles_Her
-#             xsec = xsec_Her
-
-#         for HT_bin in run_bins: #inputfiles_Her: #
-#             hist = ROOT.TH1F('lambda_tmp'+'_'+HT_bin+'_'+sample, ';displacement cm;number of gen particles', len(bin_edges)-1, bin_edges_array.data())
-#             hist2 = ROOT.TH1F('lambda2_tmp'+'_'+HT_bin+'_'+sample, ';displacement cm;number of gen particles', 30, 0, 2.1)
-#             hist3 = ROOT.TH2F('x_vs_R'+'_'+HT_bin+'_'+sample, 'B-hadron Displacement vs Jet Energy Response', len(bin_edges)-1, bin_edges_array.data(), 30, 0, 2)
-#             tot_events = 0
-#             for inputfile in inputfiles[HT_bin]:
-
-#                 print("loading file: ", inputfile) 
-#                 events = Events(inputfile)
-#                 hist, hist2, hist3, num_events = get_displacement(events, handle, label, hist, hist2, hist3)
-#                 tot_events += num_events
-
-#             scale_factor = xsec[HT_bin] / tot_events
-#             hist.Scale(scale_factor)
-#             hist2.Scale(scale_factor)
-#             hist3.Scale(scale_factor)
-
-#             hist_tot1.Add(hist)
-#             hist_tot2.Add(hist2)
-#             hists1.append(hist)
-#             hists2.append(hist2)
-#             hists3.append(hist3)
-
-#             vals = []
-#             errs = []
-#             for i in range(0, hist.GetNbinsX() + 2):
-#                 vals.append(hist.GetBinContent(i))
-#                 errs.append(hist.GetBinError(i))
-#             print("vals = ", vals)
-#             print("errs = ", errs)
-
-#         hists1.append(hist_tot1)
-#         hists2.append(hist_tot2)
-
-#     vals = []
-#     errs = []
-#     for i in range(1, hist_tot1.GetNbinsX() + 1):
-#         vals.append(hist_tot1.GetBinContent(i))
-#         errs.append(hist_tot1.GetBinError(i))
-#     print("vals = ", vals)
-#     print("errs = ", errs)
-
-
-
-#     file = ROOT.TFile(out_dir+"/histograms1"+'_'.join(run_bins)+".root", "RECREATE")
-#     for hist in hists1:
-#         hist.Write()
-#     file.Close()
-
-#     file = ROOT.TFile(out_dir+"/histograms2"+'_'.join(run_bins)+".root", "RECREATE")
-#     for hist in hists2:
-#         hist.Write()
-#     file.Close()
-
-#     file = ROOT.TFile(out_dir+"/histograms3"+'_'.join(run_bins)+".root", "RECREATE")
-#     for hist in hists3:
-#         hist.Write()
-#     file.Close()
 
 import optparse
 def main():
