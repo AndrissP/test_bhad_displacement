@@ -57,6 +57,8 @@ def get_displacement(events, handle, label, hist, hist2, hist3, hist4, hist5, de
     "histograms3_<HTbin>_<id>.root": b-hadron displacement vs jet energy response
     "histograms4_<HTbin>_<id>.root": b-hadron transverse displacement histogram in narrow bins
     "histograms5_<HTbin>_<id>.root": b-hadron transverse displacement vs jet energy response
+    "histograms6_<HTbin>_<id>.root": b-hadron pdg ID vs jet energy response
+    "histograms7_<HTbin>_<id>.root": leptonic  vs jet energy response
     '''
     debug_jet_matching = False
 
@@ -179,7 +181,7 @@ def get_displacement(events, handle, label, hist, hist2, hist3, hist4, hist5, de
 
     return hist, hist2, hist3, hist4, hist5, num_events
 
-filedir = '/eos/cms/store/user/anpotreb/QCD_MINIAOD_test'
+# filedir = '/eos/cms/store/user/anpotreb/QCD_MINIAOD_test'
 # inputfiles_Py = ['QCD_HT1000to1500.root']
 # inputfiles_Py = ['QCD_HT1000to1500_example.root']
 # inputfiles_Py = {"HT1000to1500": [filedir+'/QCD_HT1000to1500.root'],

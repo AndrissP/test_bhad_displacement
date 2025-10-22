@@ -1,4 +1,5 @@
 #! /bin/bash
+## usage example:  ./get_file_names.sh /QCD_HT2000toInf_TuneCH3_13TeV-madgraphMLM-herwig7/RunIISummer20UL18RECO-106X_upgrade2018_realistic_v11_L1v1-v2/AODSIM QCD_Her_2000toInf_AOD.txt
 queryName=$1
 
 out_file='fileNames.txt'
